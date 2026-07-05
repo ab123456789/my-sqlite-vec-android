@@ -11,19 +11,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y gettext clang
+        run: sudo apt-get update && sudo apt-get install -y gettext
       - name: Build
         run: |
-          # 显式生成头文件
+          # Use Android NDK
+          export CC=${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android33-clang
+          export AR=${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar
+          
+          # 生成头文件
           make sqlite-vec.h
           
-          # 明确使用 clang 编译生成加载库
-          make loadable CC=clang
+          # 显式使用 NDK 编译器进行交叉编译
+          $CC -O3 -fPIC -shared sqlite-vec.c -o vec0.so -I. -Ivendor
           
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: sqlite-vec-android
-          path: dist/
+          path: vec0.so

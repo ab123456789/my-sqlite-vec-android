@@ -1,0 +1,25 @@
+name: Compile for Android
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build for Android
+        run: |
+          # Use Android NDK provided by GitHub Actions environment
+          export CC=${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android33-clang
+          export AR=${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar
+          
+          make clean
+          make CC=$CC AR=$AR
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: sqlite-vec-android
+          path: dist/

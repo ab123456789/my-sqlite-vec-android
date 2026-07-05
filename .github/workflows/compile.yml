@@ -14,13 +14,15 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y gettext
       - name: Build
         run: |
-          # Use Android NDK
-          export CC=${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android33-clang
+          # 1. 运行 vendor 脚本，下载缺失的 sqlite3ext.h 等头文件
+          chmod +x ./scripts/vendor.sh
+          ./scripts/vendor.sh
           
-          # 生成头文件
+          # 2. 生成头文件
           make sqlite-vec.h
           
-          # 关键：加上 -Ivendor 找到 sqlite3ext.h
+          # 3. Use Android NDK 进行交叉编译
+          export CC=${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android33-clang
           $CC -O3 -fPIC -shared sqlite-vec.c -o vec0.so -I. -Ivendor
           
       - name: Upload Artifacts

@@ -16,8 +16,11 @@ jobs:
           export CC=${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android33-clang
           export AR=${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar
           
-          # make 编译
-          make loadable
+          # Add -Ivendor to CFLAGS to include local sqlite3ext.h
+          export CFLAGS="-Ivendor"
+          
+          make clean
+          make loadable CC=$CC AR=$AR CFLAGS="$CFLAGS"
           
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4

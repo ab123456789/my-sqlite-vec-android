@@ -16,12 +16,11 @@ jobs:
         run: |
           # Use Android NDK
           export CC=${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android33-clang
-          export AR=${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar
           
           # 生成头文件
           make sqlite-vec.h
           
-          # 显式使用 NDK 编译器进行交叉编译
+          # 关键：加上 -Ivendor 找到 sqlite3ext.h
           $CC -O3 -fPIC -shared sqlite-vec.c -o vec0.so -I. -Ivendor
           
       - name: Upload Artifacts

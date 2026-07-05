@@ -14,13 +14,13 @@ jobs:
         run: |
           # Use Android NDK
           export CC=${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin/aarch64-linux-android33-clang
-          export AR=${ANDROID_NDK_LATEST_HOME}/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-ar
           
-          # Add -Ivendor to CFLAGS to include local sqlite3ext.h
-          export CFLAGS="-Ivendor"
+          # Create amalgamation first to avoid dependency issues
+          make amalgamation
           
-          make clean
-          make loadable CC=$CC AR=$AR CFLAGS="$CFLAGS"
+          # Compile the amalgamated source
+          mkdir -p dist
+          $CC -O3 -fPIC -shared dist/sqlite-vec.c -o dist/vec0.so
           
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
